@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Bouncing Balls Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+
+        #container {
+            width: 90vw;
+            max-width: 1000px;
+            height: 60vh;
+            min-height: 400px;
+            border: 3px solid #333;
+            background-color: #000;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            transition: none;
+        }
+
+        #red-ball {
+            background-color: #ff4444;
+            box-shadow: 0 0 10px #ff4444;
+        }
+
+        #blue-ball {
+            background-color: #4444ff;
+            box-shadow: 0 0 10px #4444ff;
+        }
+
+        #green-ball {
+            background-color: #44ff44;
+            box-shadow: 0 0 10px #44ff44;
+        }
+
+        #orange-ball {
+            background-color: #ff8844;
+            box-shadow: 0 0 10px #ff8844;
+        }
+
+        #white-ball {
+            background-color: #ffffff;
+            box-shadow: 0 0 10px #ffffff;
+        }
+
+        #purple-ball {
+            background-color: #8844ff;
+            box-shadow: 0 0 10px #8844ff;
+        }
+
+        #yellow-ball {
+            background-color: #ffff44;
+            box-shadow: 0 0 10px #ffff44;
+        }
+
+        #cyan-ball {
+            background-color: #44ffff;
+            box-shadow: 0 0 10px #44ffff;
+        }
+
+        #pink-ball {
+            background-color: #ff44ff;
+            box-shadow: 0 0 10px #ff44ff;
+        }
+
+        #lime-ball {
+            background-color: #88ff44;
+            box-shadow: 0 0 10px #88ff44;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            #container {
+                width: 95vw;
+                height: 50vh;
+            }
+            
+            .ball {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            #container {
+                width: 98vw;
+                height: 45vh;
+            }
+            
+            .ball {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Bouncing Balls Animation</h1>
+    <div id="container">
+        <div id="red-ball" class="ball"></div>
+        <div id="blue-ball" class="ball"></div>
+        <div id="green-ball" class="ball"></div>
+        <div id="orange-ball" class="ball"></div>
+        <div id="white-ball" class="ball"></div>
+        <div id="purple-ball" class="ball"></div>
+        <div id="yellow-ball" class="ball"></div>
+        <div id="cyan-ball" class="ball"></div>
+        <div id="pink-ball" class="ball"></div>
+        <div id="lime-ball" class="ball"></div>
+    </div>
+
+    <script>
+        class Ball {
+            constructor(element, color) {
+                this.element = element;
+                this.color = color;
+                this.radius = 12.5; // Half of ball width
+                this.mass = 1; // Mass for collision calculations
+                this.resetPosition();
+            }
+
+            resetPosition() {
+                const container = document.getElementById('container');
+                const rect = container.getBoundingClientRect();
+                
+                this.x = Math.random() * (rect.width - this.radius * 2) + this.radius;
+                this.y = Math.random() * (rect.height - this.radius * 2) + this.radius;
+                this.vx = (Math.random() - 0.5) * 6; // Random velocity
+                this.vy = (Math.random() - 0.5) * 6;
+            }
+
+            update() {
+                const container = document.getElementById('container');
+                const rect = container.getBoundingClientRect();
+                
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off walls
+                if (this.x <= this.radius || this.x >= rect.width - this.radius) {
+                    this.vx = -this.vx;
+                    this.x = Math.max(this.radius, Math.min(rect.width - this.radius, this.x));
+                }
+
+                if (this.y <= this.radius || this.y >= rect.height - this.radius) {
+                    this.vy = -this.vy;
+                    this.y = Math.max(this.radius, Math.min(rect.height - this.radius, this.y));
+                }
+
+                // Apply position to element
+                this.element.style.left = (this.x - this.radius) + 'px';
+                this.element.style.top = (this.y - this.radius) + 'px';
+            }
+
+            // Check collision with another ball
+            checkCollision(otherBall) {
+                const dx = this.x - otherBall.x;
+                const dy = this.y - otherBall.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < this.radius + otherBall.radius) {
+                    // Collision detected - resolve it
+                    this.resolveCollision(otherBall);
+                }
+            }
+
+            // Resolve collision using elastic collision physics
+            resolveCollision(otherBall) {
+                const dx = otherBall.x - this.x;
+                const dy = otherBall.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance === 0) return; // Avoid division by zero
+                
+                // Normalize the collision vector
+                const nx = dx / distance;
+                const ny = dy / distance;
+                
+                // Relative velocity
+                const relativeVelocityX = otherBall.vx - this.vx;
+                const relativeVelocityY = otherBall.vy - this.vy;
+                
+                // Calculate relative velocity in terms of the normal direction
+                const speed = relativeVelocityX * nx + relativeVelocityY * ny;
+                
+                // Don't resolve if balls are moving apart
+                if (speed > 0) return;
+                
+                // Calculate impulse
+                const impulse = 2 * speed / (this.mass + otherBall.mass);
+                
+                // Update velocities
+                this.vx += impulse * otherBall.mass * nx;
+                this.vy += impulse * otherBall.mass * ny;
+                otherBall.vx -= impulse * this.mass * nx;
+                otherBall.vy -= impulse * this.mass * ny;
+                
+                // Move balls apart to prevent sticking
+                const overlap = (this.radius + otherBall.radius - distance) / 2;
+                const moveX = nx * overlap;
+                const moveY = ny * overlap;
+                
+                this.x -= moveX;
+                this.y -= moveY;
+                otherBall.x += moveX;
+                otherBall.y += moveY;
+            }
+        }
+
+        // Initialize balls
+        const ballConfigs = [
+            { id: 'red-ball', color: 'red' },
+            { id: 'blue-ball', color: 'blue' },
+            { id: 'green-ball', color: 'green' },
+            { id: 'orange-ball', color: 'orange' },
+            { id: 'white-ball', color: 'white' },
+            { id: 'purple-ball', color: 'purple' },
+            { id: 'yellow-ball', color: 'yellow' },
+            { id: 'cyan-ball', color: 'cyan' },
+            { id: 'pink-ball', color: 'pink' },
+            { id: 'lime-ball', color: 'lime' }
+        ];
+
+        const balls = ballConfigs.map(config => 
+            new Ball(document.getElementById(config.id), config.color)
+        );
+
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                balls.forEach(ball => ball.resetPosition());
+            }, 100);
+        });
+
+        // Animation loop
+        function animate() {
+            // Update ball positions
+            balls.forEach(ball => ball.update());
+            
+            // Check for collisions between all ball pairs
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    balls[i].checkCollision(balls[j]);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation when page loads
+        window.addEventListener('load', () => {
+            animate();
+        });
+    </script>
+</body>
+</html>
